@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='utf-8'?>
+<plugin id="outsystems-cordova-plugin-firebase-with-dynamiclinks" 
+    version="1.0.0" 
+    xmlns="http://apache.org/cordova/ns/plugins/1.0" 
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <name>OutsystemsFirebasewithDynamicLinks</name>
+
+    <description>Cordova Firebase Plugin with DynamicLinks support</description>
+
+    <license>Apache 2.0</license>
+   
+    <keywords>cordova,device</keywords>
+   
+    <dependency id="cordova-plugin-firebase" url="https://github.com/LifeEternal/testefirebasex" >
+        <params name="APP_DOMAIN" value="$APP_DOMAIN" />
+        <params name="PAGE_LINK_DOMAIN" value="$PAGE_LINK_DOMAIN" />
+    </dependency>
+
+    <preference name="APP_DOMAIN" />
+    <preference name="PAGE_LINK_DOMAIN" />
+
+    <dependency id="cordova-plugin-firebase-dynamiclinks" url="https://github.com/OutsystemsNOS/cordova-plugin-firebase-dynamiclinks-1.0.0-os" />
+
+    <engines>
+        <engine name="cordova" version=">=7.1.0" />
+    </engines>
+
+
+    <js-module name="OutsystemsFirebasewithDynamicLinks" src="www/OutsystemsFirebasewithDynamicLinks.js">
+        <clobbers target="Firebase" />
+    </js-module>
+
+</plugin>

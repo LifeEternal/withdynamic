@@ -1,0 +1,14 @@
+{
+  "name": "outsystems-cordova-plugin-firebase-with-dynamiclinks",
+  "version": "0.1.0",
+  "description": "",
+  "cordova": {
+    "id": "outsystems-cordova-plugin-firebase-with-dynamiclinks",
+    "platforms": []
+  },
+  "keywords": [
+    "ecosystem:cordova"
+  ],
+  "author": "",
+  "license": "ISC"
+}
