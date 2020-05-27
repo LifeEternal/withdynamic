@@ -38,16 +38,13 @@
 - (BOOL)identity_application:(UIApplication *)application
         continueUserActivity:(NSUserActivity *)userActivity
           restorationHandler:(void (^)(NSArray *))restorationHandler {
-    __block FirebaseDynamicLinksPlugin* dl = [self.viewController getCommandInstance:@"FirebaseDynamicLinks"];
+    FirebaseDynamicLinksPlugin* dl = [self.viewController getCommandInstance:@"FirebaseDynamicLinks"];
 
     BOOL handled = [[FIRDynamicLinks dynamicLinks]
         handleUniversalLink:userActivity.webpageURL
         completion:^(FIRDynamicLink * _Nullable dynamicLink, NSError * _Nullable error) {
             // Try this method as some dynamic links are not recognize by handleUniversalLink
             // ISSUE: https://github.com/firebase/firebase-ios-sdk/issues/743
-            if(dl == nil) {             
-                dl = [self.viewController getCommandInstance:@"FirebaseDynamicLinks"];
-            }
             dynamicLink = dynamicLink ? dynamicLink
                 : [[FIRDynamicLinks dynamicLinks]
                    dynamicLinkFromUniversalLinkURL:userActivity.webpageURL];
@@ -61,7 +58,9 @@
         return YES;
     }
 
-    return handled;
+    return [self identity_application:application
+                 continueUserActivity:userActivity
+                   restorationHandler:restorationHandler];
 }
 // [END continueuseractivity]
 

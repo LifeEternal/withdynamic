@@ -1,6 +1,6 @@
 {
   "name": "cordova-plugin-firebase-dynamiclinks",
-  "version": "3.0.0",
+  "version": "2.0.0",
   "description": "Cordova plugin for Firebase Dynamic Links",
   "cordova": {
     "id": "cordova-plugin-firebase-dynamiclinks",
@@ -33,8 +33,5 @@
   "bugs": {
     "url": "https://github.com/chemerisuk/cordova-plugin-firebase-dynamiclinks/issues"
   },
-  "homepage": "https://github.com/chemerisuk/cordova-plugin-firebase-dynamiclinks#readme",
-  "dependencies": {
-    "adm-zip": "^0.4.13"
-  }
+  "homepage": "https://github.com/chemerisuk/cordova-plugin-firebase-dynamiclinks#readme"
 }
