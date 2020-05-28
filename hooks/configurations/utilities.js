@@ -25,18 +25,12 @@ var constants = {
       return "platforms/ios/" + utils.getAppName(context) + "/Resources";
     }
   },
-  zipExtension: ".zip",
-  folderNameSuffix: ".firebase",
-  folderNamePrefix: "firebase."
-};
+  zipExtension: ".zip"
+}; 
 
 function handleError(errorMessage, defer) {
   console.log(errorMessage);
   defer.reject();
-}
-
-function checkIfFolderExists(path) {
-  return fs.existsSync(path);
 }
 
 function getFilesFromPath(path) {
@@ -47,31 +41,6 @@ function createOrCheckIfFolderExists(path) {
   if (!fs.existsSync(path)) {
     fs.mkdirSync(path);
   }
-}
-
-function getSourceFolderPath(context, wwwPath) {
-  var sourceFolderPath;
-  var appId = getAppId(context);
-  var cordovaAbove7 = isCordovaAbove(context, 7);
-
-  // New way of looking for the configuration files' folder
-  if (cordovaAbove7) {
-    sourceFolderPath = path.join(context.opts.projectRoot, "www", appId + constants.folderNameSuffix);
-  } else {
-    sourceFolderPath = path.join(wwwPath, appId + constants.folderNameSuffix);
-  }
-
-  // Fallback to deprecated way of looking for the configuration files' folder
-  if(!checkIfFolderExists(sourceFolderPath)) {
-    console.log("Using deprecated way to look for configuration files' folder");
-    if (cordovaAbove7) {
-      sourceFolderPath = path.join(context.opts.projectRoot, "www", constants.folderNamePrefix + appId);
-    } else {
-      sourceFolderPath = path.join(wwwPath, constants.folderNamePrefix + appId);
-    }
-  }
-
-  return sourceFolderPath;
 }
 
 function getResourcesFolderPath(context, platform, platformConfig) {
@@ -121,24 +90,34 @@ function getAppId(context) {
 
 function isCordovaAbove(context, version) {
   var cordovaVersion = context.opts.cordova.version;
-  console.log(cordovaVersion);
   var sp = cordovaVersion.split('.');
   return parseInt(sp[0]) >= version;
 }
 
-function getAndroidTargetSdk() {
-  var projectPropertiesPath = path.join("platforms", "android", "CordovaLib", "project.properties");
-  if (checkIfFolderExists(projectPropertiesPath)) {
-    var projectProperties = fs.readFileSync(projectPropertiesPath).toString();
-    var lookUp = "target=android-";
-    var from = projectProperties.indexOf(lookUp) + lookUp.length;
-    var length = projectProperties.indexOf('\n', from) - from;
-    var sdk = projectProperties.substr(from, length).trim();
-    console.log('getAndroidTargetSdk', sdk);
-    return parseInt(sdk);
+function getAndroidTargetSdk(context) {
+  var cordovaAbove8 = isCordovaAbove(context, 8);
+  var et;
+  if (cordovaAbove8) {
+    et = require('elementtree');
+  } else {
+    et = context.requireCordovaModule('elementtree');
   }
 
-  throw new Error('Could not find android target in ' + projectPropertiesPath);
+  var androidManifestPath1 = path.join("platforms", "android", "AndroidManifest.xml");
+  var androidManifestPath2 = path.join("platforms", "android", "app", "src", "main", "AndroidManifest.xml");
+
+  var data;
+  if (checkIfFolderExists(androidManifestPath1)) {
+    data = fs.readFileSync(androidManifestPath1).toString();
+  } else if (checkIfFolderExists(androidManifestPath2)){
+    data = fs.readFileSync(androidManifestPath2).toString();
+  } else {
+    return;
+  }
+
+  var etree = et.parse(data);
+  var sdk = etree.findall('./uses-sdk')[0].get('android:targetSdkVersion');
+  return parseInt(sdk);
 }
 
 function copyFromSourceToDestPath(defer, sourcePath, destPath) {
@@ -150,6 +129,24 @@ function copyFromSourceToDestPath(defer, sourcePath, destPath) {
     console.log(err);
     defer.reject();
   });
+}
+
+function checkIfFolderExists(path) {
+  return fs.existsSync(path);
+}
+
+function rmNonEmptyDir(dir_path) {
+  if (fs.existsSync(dir_path)) {
+      fs.readdirSync(dir_path).forEach(function(entry) {
+          var entry_path = path.join(dir_path, entry);
+          if (fs.lstatSync(entry_path).isDirectory()) {
+              rmNonEmptyDir(entry_path);
+          } else {
+              fs.unlinkSync(entry_path);
+          }
+      });
+      fs.rmdirSync(dir_path);
+  }
 }
 
 module.exports = {
@@ -164,5 +161,5 @@ module.exports = {
   createOrCheckIfFolderExists,
   checkIfFolderExists,
   getAndroidTargetSdk,
-  getSourceFolderPath
+  rmNonEmptyDir
 };

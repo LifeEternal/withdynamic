@@ -1,21 +1,38 @@
-# cordova-plugin-firebase-dynamiclinks<br>[![NPM version][npm-version]][npm-url] [![NPM downloads][npm-downloads]][npm-url] [![Twitter][twitter-follow]][twitter-url]
-> Cordova plugin for [Firebase Dynamic Links](https://firebase.google.com/docs/dynamic-links/)
- 
-## Installation
+# Cordova plugin for [Firebase Dynamic Links](https://firebase.google.com/docs/dynamic-links/)
 
-    cordova plugin add cordova-plugin-firebase-dynamiclinks --save --variable APP_DOMAIN="example.com" --variable PAGE_LINK_DOMAIN="example.page.link"
+[![NPM version][npm-version]][npm-url] [![NPM downloads][npm-downloads]][npm-url] [![Twitter][twitter-follow]][twitter-url]
 
-Use variable `APP_DOMAIN` specify web URL where your app will start an activity to handle the link.
+| [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)][donate-url] | Your help is appreciated. Create a PR, submit a bug or just grab me :beer: |
+|-|-|
 
-Use variable `PAGE_LINK_DOMAIN` specify your `*.page.link` domain.
+## Index
 
-Use variable `FIREBASE_DYNAMIC_LINKS_VERSION` to override dependency version on Android.
+<!-- MarkdownTOC levels="2" autolink="true" -->
+
+- [Supported Platforms](#supported-platforms)
+- [Installation](#installation)
+- [Quirks](#quirks)
+- [Methods](#methods)
+- [Dynamic link parameters](#dynamic-link-parameters)
+
+<!-- /MarkdownTOC -->
 
 ## Supported Platforms
 
 - iOS
 - Android
+ 
+## Installation
 
+    $ cordova plugin add cordova-plugin-firebase-dynamiclinks --variable APP_DOMAIN="example.com" --variable PAGE_LINK_DOMAIN="example.page.link"
+
+Use variable `APP_DOMAIN` specify web URL where your app will start an activity to handle the link.
+
+Use variable `PAGE_LINK_DOMAIN` specify your `*.page.link` domain.
+
+Use variable `FIREBASE_DYNAMIC_LINKS_VERSION` and `FIREBASE_CORE_VERSION` to override dependency version on Android.
+
+## Quirks
 On Android you have to add `AndroidLaunchMode` setting in order to prevent creating of multiple app activities:
 ```xml
 <preference name="AndroidLaunchMode" value="singleTask" />
@@ -34,7 +51,7 @@ cordova.plugins.firebase.dynamiclinks.onDynamicLink(function(data) {
 ```
 Every `create*` method accepts `dynamicLinkInfo` object as the first argument. Read section below to understand all supported [dynamic link parameters](#dynamic-link-parameters).
 
-### createDynamicLink
+### createDynamicLink(_parameters_)
 Creates a Dynamic Link from the parameters. Returns a promise fulfilled with the new dynamic link url.
 ```js
 cordova.plugins.firebase.dynamiclinks.createDynamicLink({
@@ -44,7 +61,7 @@ cordova.plugins.firebase.dynamiclinks.createDynamicLink({
 });
 ```
 
-### createShortDynamicLink
+### createShortDynamicLink(_parameters_)
 Creates a shortened Dynamic Link from the parameters. Shorten the path to a string that is only as long as needed to be unique, with a minimum length of 4 characters. Use this method if sensitive information would not be exposed if a short Dynamic Link URL were guessed.
 ```js
 cordova.plugins.firebase.dynamiclinks.createShortDynamicLink({
@@ -54,7 +71,7 @@ cordova.plugins.firebase.dynamiclinks.createShortDynamicLink({
 });
 ```
 
-### createUnguessableDynamicLink
+### createUnguessableDynamicLink(_parameters_)
 Creates a Dynamic Link from the parameters. Shorten the path to an unguessable string. Such strings are created by base62-encoding randomly generated 96-bit numbers, and consist of 17 alphanumeric characters. Use unguessable strings to prevent your Dynamic Links from being crawled, which can potentially expose sensitive information.
 ```js
 cordova.plugins.firebase.dynamiclinks.createUnguessableDynamicLink({
@@ -112,3 +129,4 @@ Any create method supports all options below to customize a returned dynamic lin
 [npm-downloads]: https://img.shields.io/npm/dm/cordova-plugin-firebase-dynamiclinks.svg
 [twitter-url]: https://twitter.com/chemerisuk
 [twitter-follow]: https://img.shields.io/twitter/follow/chemerisuk.svg?style=social&label=Follow%20me
+[donate-url]: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=USD4VHG7CF6FN&source=url
