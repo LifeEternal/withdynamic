@@ -1,7 +1,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
 xmlns:android="http://schemas.android.com/apk/res/android"
            id="cordova-plugin-firebase-dynamiclinks"
-      version="1.2.1">
+      version="2.0.3">
 
     <name>FirebaseDynamicLinksPlugin</name>
     <description>Cordova plugin for Firebase Dynamic Links</description>
@@ -11,7 +11,7 @@ xmlns:android="http://schemas.android.com/apk/res/android"
     <engines>
         <engine name="cordova" version=">=7.1.0"/>
         <engine name="cordova-android" version=">=7.0.0"/>
-        <engine name="cordova-ios" version=">=4.4.0"/>
+        <engine name="cordova-ios" version=">=5.0.0"/>
     </engines>
 
     <js-module name="FirebaseDynamicLinks" src="www/FirebaseDynamicLinks.js">
@@ -23,7 +23,7 @@ xmlns:android="http://schemas.android.com/apk/res/android"
 
     <platform name="android">
         <preference name="FIREBASE_CORE_VERSION" default="16.0.+"/>
-        <preference name="FIREBASE_DYNAMIC_LINKS_VERSION" default="16.1.+"/>
+        <preference name="FIREBASE_DYNAMIC_LINKS_VERSION" default="17.0.+"/>
 
         <config-file parent="/*" target="res/xml/config.xml">
             <preference name="DYNAMIC_LINK_URIPREFIX" value="https://$PAGE_LINK_DOMAIN"/>
@@ -100,8 +100,15 @@ xmlns:android="http://schemas.android.com/apk/res/android"
         <header-file src="src/ios/FirebaseDynamicLinksPlugin.h" />
         <source-file src="src/ios/FirebaseDynamicLinksPlugin.m" />
 
-        <framework src="Firebase/Core" type="podspec" spec="~> 5.0"/>
-        <framework src="Firebase/DynamicLinks" type="podspec" spec="~> 5.0"/>
+        <podspec>
+            <config>
+                <source url="https://github.com/CocoaPods/Specs.git"/>
+            </config>
+            <pods>
+                <pod name="Firebase/Core" spec="~> 6.1.0" />
+                <pod name="Firebase/DynamicLinks" spec="~> 6.1.0" />
+            </pods>
+        </podspec>
     </platform>
 
 </plugin>
