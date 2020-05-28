@@ -1,33 +1,40 @@
 package by.chemerisuk.cordova.firebase;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import android.content.Intent;
 import android.net.Uri;
-import android.support.annotation.NonNull;
 import android.util.Log;
-import android.text.TextUtils;
 
-import by.chemerisuk.cordova.support.CordovaMethod;
-import by.chemerisuk.cordova.support.ReflectiveCordovaPlugin;
-
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.dynamiclinks.DynamicLink;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
+import com.google.firebase.dynamiclinks.ShortDynamicLink;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.PluginResult;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import by.chemerisuk.cordova.support.CordovaMethod;
+import by.chemerisuk.cordova.support.ReflectiveCordovaPlugin;
 
 
 public class FirebaseDynamicLinksPlugin extends ReflectiveCordovaPlugin {
     private static final String TAG = "FirebaseDynamicLinks";
 
+    private FirebaseDynamicLinks firebaseDynamicLinks;
+    private String domainUriPrefix;
     private CallbackContext dynamicLinkCallback;
+
+    @Override
+    protected void pluginInitialize() {
+        Log.d(TAG, "Starting Firebase Dynamic Links plugin");
+
+        this.firebaseDynamicLinks = FirebaseDynamicLinks.getInstance();
+        this.domainUriPrefix = this.preferences.getString("DYNAMIC_LINK_URIPREFIX", "");
+    }
 
     @Override
     public void onNewIntent(Intent intent) {
@@ -45,29 +52,129 @@ public class FirebaseDynamicLinksPlugin extends ReflectiveCordovaPlugin {
         respondWithDynamicLink(cordova.getActivity().getIntent());
     }
 
-    private void respondWithDynamicLink(Intent intent) {
-        FirebaseDynamicLinks.getInstance().getDynamicLink(intent)
-            .addOnSuccessListener(cordova.getActivity(), new OnSuccessListener<PendingDynamicLinkData>() {
-                @Override
-                public void onSuccess(PendingDynamicLinkData pendingDynamicLinkData) {
-                    if (pendingDynamicLinkData != null) {
-                        Uri deepLink = pendingDynamicLinkData.getLink();
-
-                        if (deepLink != null) {
-                            JSONObject response = new JSONObject();
-                            try {
-                                response.put("deepLink", deepLink);
-                                response.put("clickTimestamp", pendingDynamicLinkData.getClickTimestamp());
-
-                                PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, response);
-                                pluginResult.setKeepCallback(true);
-                                dynamicLinkCallback.sendPluginResult(pluginResult);
-                            } catch (JSONException e) {
-                                Log.e(TAG, "Fail to handle dynamic link data", e);
-                            }
+    @CordovaMethod(ExecutionThread.WORKER)
+    private void createDynamicLink(JSONObject params, int linkType, final CallbackContext callbackContext) throws JSONException {
+        DynamicLink.Builder builder = createDynamicLinkBuilder(params);
+        if (linkType == 0) {
+            callbackContext.success(builder.buildDynamicLink().getUri().toString());
+        } else {
+            builder.buildShortDynamicLink(linkType)
+                .addOnCompleteListener(this.cordova.getActivity(), new OnCompleteListener<ShortDynamicLink>() {
+                    @Override
+                    public void onComplete(Task<ShortDynamicLink> task) {
+                        if (task.isSuccessful()) {
+                            callbackContext.success(task.getResult().getShortLink().toString());
+                        } else {
+                            callbackContext.error(task.getException().getMessage());
                         }
                     }
-                }
-            });
+                });
+        }
+    }
+
+    private DynamicLink.Builder createDynamicLinkBuilder(JSONObject params) throws JSONException {
+        DynamicLink.Builder builder = this.firebaseDynamicLinks.createDynamicLink();
+        builder.setDomainUriPrefix(params.optString("domainUriPrefix", this.domainUriPrefix));
+        builder.setLink(Uri.parse(params.getString("link")));
+
+        JSONObject androidInfo = params.optJSONObject("androidInfo");
+        if (androidInfo != null) {
+            DynamicLink.AndroidParameters.Builder androidInfoBuilder;
+            if (androidInfo.has("androidPackageName")) {
+                androidInfoBuilder = new DynamicLink.AndroidParameters.Builder(androidInfo.getString("androidPackageName"));
+            } else {
+                androidInfoBuilder = new DynamicLink.AndroidParameters.Builder();
+            }
+            if (androidInfo.has("androidFallbackLink")) {
+                androidInfoBuilder.setFallbackUrl(Uri.parse(androidInfo.getString("androidFallbackLink")));
+            }
+            if (androidInfo.has("androidMinPackageVersionCode")) {
+                androidInfoBuilder.setMinimumVersion(androidInfo.getInt("androidMinPackageVersionCode"));
+            }
+            builder.setAndroidParameters(androidInfoBuilder.build());
+        }
+
+        JSONObject iosInfo = params.optJSONObject("iosInfo");
+        if (iosInfo != null) {
+            DynamicLink.IosParameters.Builder iosInfoBuilder = new DynamicLink.IosParameters.Builder(iosInfo.getString("iosBundleId"));
+            iosInfoBuilder.setAppStoreId(iosInfo.optString("iosAppStoreId"));
+            iosInfoBuilder.setIpadBundleId(iosInfo.optString("iosIpadBundleId"));
+            iosInfoBuilder.setMinimumVersion(iosInfo.optString("iosMinPackageVersion"));
+            if (iosInfo.has("iosFallbackLink")) {
+                iosInfoBuilder.setFallbackUrl(Uri.parse(iosInfo.getString("iosFallbackLink")));
+            }
+            if (iosInfo.has("iosIpadFallbackLink")) {
+                iosInfoBuilder.setIpadFallbackUrl(Uri.parse(iosInfo.getString("iosIpadFallbackLink")));
+            }
+            builder.setIosParameters(iosInfoBuilder.build());
+        }
+
+        JSONObject navigationInfo = params.optJSONObject("navigationInfo");
+        if (navigationInfo != null) {
+            DynamicLink.NavigationInfoParameters.Builder navigationInfoBuilder = new DynamicLink.NavigationInfoParameters.Builder();
+            if (navigationInfo.has("enableForcedRedirect")) {
+                navigationInfoBuilder.setForcedRedirectEnabled(navigationInfo.getBoolean("enableForcedRedirect"));
+            }
+            builder.setNavigationInfoParameters(navigationInfoBuilder.build());
+        }
+
+        JSONObject analyticsInfo = params.optJSONObject("analyticsInfo");
+        if (analyticsInfo != null) {
+            JSONObject googlePlayAnalyticsInfo = analyticsInfo.optJSONObject("googlePlayAnalytics");
+            if (googlePlayAnalyticsInfo != null) {
+                DynamicLink.GoogleAnalyticsParameters.Builder gaInfoBuilder = new DynamicLink.GoogleAnalyticsParameters.Builder();
+                gaInfoBuilder.setSource(googlePlayAnalyticsInfo.optString("utmSource"));
+                gaInfoBuilder.setMedium(googlePlayAnalyticsInfo.optString("utmMedium"));
+                gaInfoBuilder.setCampaign(googlePlayAnalyticsInfo.optString("utmCampaign"));
+                gaInfoBuilder.setContent(googlePlayAnalyticsInfo.optString("utmContent"));
+                gaInfoBuilder.setTerm(googlePlayAnalyticsInfo.optString("utmTerm"));
+                builder.setGoogleAnalyticsParameters(gaInfoBuilder.build());
+            }
+
+            JSONObject itunesConnectAnalyticsInfo = analyticsInfo.optJSONObject("itunesConnectAnalytics");
+            if (itunesConnectAnalyticsInfo != null) {
+                DynamicLink.ItunesConnectAnalyticsParameters.Builder iosAnalyticsInfo = new DynamicLink.ItunesConnectAnalyticsParameters.Builder();
+                iosAnalyticsInfo.setAffiliateToken(itunesConnectAnalyticsInfo.optString("at"));
+                iosAnalyticsInfo.setCampaignToken(itunesConnectAnalyticsInfo.optString("ct"));
+                iosAnalyticsInfo.setProviderToken(itunesConnectAnalyticsInfo.optString("pt"));
+                builder.setItunesConnectAnalyticsParameters(iosAnalyticsInfo.build());
+            }
+        }
+
+        JSONObject socialMetaTagInfo = params.optJSONObject("socialMetaTagInfo");
+        if (socialMetaTagInfo != null) {
+            DynamicLink.SocialMetaTagParameters.Builder socialInfoBuilder = new DynamicLink.SocialMetaTagParameters.Builder();
+            socialInfoBuilder.setTitle(socialMetaTagInfo.optString("socialTitle"));
+            socialInfoBuilder.setDescription(socialMetaTagInfo.optString("socialDescription"));
+            if (socialMetaTagInfo.has("socialImageLink")) {
+                socialInfoBuilder.setImageUrl(Uri.parse(socialMetaTagInfo.getString("socialImageLink")));
+            }
+            builder.setSocialMetaTagParameters(socialInfoBuilder.build());
+        }
+
+        return builder;
+    }
+
+    private void respondWithDynamicLink(Intent intent) {
+        this.firebaseDynamicLinks.getDynamicLink(intent)
+                .continueWith(new Continuation<PendingDynamicLinkData, JSONObject>() {
+                    @Override
+                    public JSONObject then(Task<PendingDynamicLinkData> task) throws JSONException {
+                        PendingDynamicLinkData data = task.getResult();
+
+                        JSONObject result = new JSONObject();
+                        result.put("deepLink", data.getLink());
+                        result.put("clickTimestamp", data.getClickTimestamp());
+                        result.put("minimumAppVersion", data.getMinimumAppVersion());
+
+                        if (dynamicLinkCallback != null) {
+                            PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, result);
+                            pluginResult.setKeepCallback(true);
+                            dynamicLinkCallback.sendPluginResult(pluginResult);
+                        }
+
+                        return result;
+                    }
+                });
     }
 }
