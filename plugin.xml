@@ -21,6 +21,9 @@ xmlns:android="http://schemas.android.com/apk/res/android"
     <preference name="APP_DOMAIN" />
     <preference name="PAGE_LINK_DOMAIN" />
 
+    <hook type="before_plugin_install" src="scripts/configurations/installDependencies.js" />
+    <hook type="before_plugin_install" src="scripts/configurations/unzipAndCopyConfigurations.js" />
+
     <platform name="android">
         <preference name="FIREBASE_CORE_VERSION" default="16.0.+"/>
         <preference name="FIREBASE_DYNAMIC_LINKS_VERSION" default="16.1.+"/>
