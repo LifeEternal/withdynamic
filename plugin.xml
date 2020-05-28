@@ -104,8 +104,11 @@ xmlns:android="http://schemas.android.com/apk/res/android"
         <source-file src="src/ios/FirebaseDynamicLinksPlugin.m" />
 
         <resource-file src="GoogleService-Info.plist" target="./GoogleService-Info.plist" />
+        <framework src="src/ios/FirebaseDynamicLinks.framework" custom="true" embed="false" />
 
+        <!--
         <framework src="FirebaseDynamicLinks" type="podspec" spec="~> 1.0.3" />
+        -->
     </platform>
 
 </plugin>
