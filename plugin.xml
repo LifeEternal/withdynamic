@@ -104,7 +104,10 @@ xmlns:android="http://schemas.android.com/apk/res/android"
         <source-file src="src/ios/FirebaseDynamicLinksPlugin.m" />
         <header-file src="src/ios/Firebase.h" />
 
+        <!--
         <resource-file src="GoogleService-Info.plist" />
+        -->
+        
         <framework src="src/ios/FirebaseDynamicLinks.framework" custom="true" embed="false" />
         <framework src="src/ios/FIRAnalyticsConnector.framework" custom="true" embed="false" />
         <framework src="src/ios/FirebaseAnalytics.framework" custom="true" embed="false" />
