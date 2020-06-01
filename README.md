@@ -16,6 +16,11 @@ Use variable `FIREBASE_DYNAMIC_LINKS_VERSION` to override dependency version on 
 - iOS
 - Android
 
+On Android you have to add `AndroidLaunchMode` setting in order to prevent creating of multiple app activities:
+```xml
+<preference name="AndroidLaunchMode" value="singleTask" />
+```
+
 Firebase Dynamic Links SDK has an [unresolved bug](https://github.com/firebase/firebase-ios-sdk/issues/233) related to parsing `deepLink` for new app installs. In order to get it work your dynamic link MUST have an [app preview page](https://firebase.google.com/docs/dynamic-links/link-previews), which by default.
 
 ## Methods
@@ -27,6 +32,7 @@ cordova.plugins.firebase.dynamiclinks.onDynamicLink(function(data) {
     console.log("Dynamic link click with data:", data);
 });
 ```
+Every `create*` method accepts `dynamicLinkInfo` object as the first argument. Read section below to understand all supported [dynamic link parameters](#dynamic-link-parameters).
 
 ### createDynamicLink
 Creates a Dynamic Link from the parameters. Returns a promise fulfilled with the new dynamic link url.
@@ -67,7 +73,7 @@ Any create method supports all options below to customize a returned dynamic lin
   "androidInfo": {
     "androidPackageName": string,
     "androidFallbackLink": string,
-    "androidMinPackageVersionCode": string
+    "androidMinPackageVersionCode": number
   },
   "iosInfo": {
     "iosBundleId": string,
