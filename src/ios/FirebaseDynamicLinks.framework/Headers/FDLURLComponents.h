@@ -1,19 +1,3 @@
-/*
- * Copyright 2018 Google
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 #import <Foundation/Foundation.h>
 
 // NS_SWIFT_NAME can only translate factory methods before the iOS 9.3 SDK.
@@ -23,8 +7,8 @@
 #define FIR_SWIFT_NAME(X) NS_SWIFT_NAME(X)
 #else
 #define FIR_SWIFT_NAME(X)  // Intentionally blank.
-#endif                     // #ifdef __IPHONE_9_3
-#endif                     // #ifndef FIR_SWIFT_NAME
+#endif  // #ifdef __IPHONE_9_3
+#endif  // #ifndef FIR_SWIFT_NAME
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -50,10 +34,10 @@ typedef NS_ENUM(NSInteger, FIRShortDynamicLinkPathLength) {
  *     error or missing parameter.
  * @param error Error if URL can't be shortened.
  */
-typedef void (^FIRDynamicLinkShortenerCompletion)(NSURL *_Nullable shortURL,
-                                                  NSArray<NSString *> *_Nullable warnings,
-                                                  NSError *_Nullable error)
-    FIR_SWIFT_NAME(DynamicLinkShortenerCompletion);
+typedef void (^FIRDynamicLinkShortenerCompletion)(NSURL * _Nullable shortURL,
+  NSArray<NSString *> * _Nullable warnings,
+  NSError * _Nullable error) FIR_SWIFT_NAME(DynamicLinkShortenerCompletion);
+
 
 /**
  * @class FIRDynamicLinkGoogleAnalyticsParameters
@@ -134,6 +118,7 @@ FIR_SWIFT_NAME(DynamicLinkGoogleAnalyticsParameters)
 
 @end
 
+
 /**
  * @class FIRDynamicLinkIOSParameters
  * @abstract The Dynamic Link iOS parameters.
@@ -185,7 +170,7 @@ FIR_SWIFT_NAME(DynamicLinkIOSParameters)
  @abstract The the minimum version of your app that can open the link. If the
  *     installed app is an older version, the user is taken to the AppStore to upgrade the app.
  *     Note: It is app's developer responsibility to open AppStore when received link declares
- *     higher minimumAppVersion than currently installed.
+ *     higher minimunAppVersion than currently installed.
  */
 @property(nonatomic, copy, nullable) NSString *minimumAppVersion;
 
@@ -197,7 +182,7 @@ FIR_SWIFT_NAME(DynamicLinkIOSParameters)
  *     generated Dynamic Link URL.
  */
 + (instancetype)parametersWithBundleID:(NSString *)bundleID
-    NS_SWIFT_UNAVAILABLE("Use initWithBundleID()");
+NS_SWIFT_UNAVAILABLE("Use initWithBundleID()");
 
 /**
  * @method initWithBundleID:
@@ -209,6 +194,7 @@ FIR_SWIFT_NAME(DynamicLinkIOSParameters)
 - (instancetype)initWithBundleID:(NSString *)bundleID;
 
 @end
+
 
 /**
  * @class FIRDynamicLinkItunesConnectAnalyticsParameters
@@ -251,6 +237,7 @@ FIR_SWIFT_NAME(DynamicLinkItunesConnectAnalyticsParameters)
 
 @end
 
+
 /**
  * @class FIRDynamicLinkAndroidParameters
  * @abstract The Dynamic Link Android parameters.
@@ -286,7 +273,7 @@ FIR_SWIFT_NAME(DynamicLinkAndroidParameters)
  *     to a generated Dynamic Link URL.
  */
 + (instancetype)parametersWithPackageName:(NSString *)packageName
-    NS_SWIFT_UNAVAILABLE("Use initWithPackageName()");
+NS_SWIFT_UNAVAILABLE("Use initWithPackageName()");
 
 /**
  * @method initWithPackageName:
@@ -298,6 +285,7 @@ FIR_SWIFT_NAME(DynamicLinkAndroidParameters)
 - (instancetype)initWithPackageName:(NSString *)packageName;
 
 @end
+
 
 /**
  * @class FIRDynamicLinkSocialMetaTagParameters
@@ -432,6 +420,7 @@ FIR_SWIFT_NAME(DynamicLinkComponentsOptions)
 
 @end
 
+
 /**
  * @class FIRDynamicLinkComponents
  * @abstract The class used for Dynamic Link URL generation; supports creation of short and long
@@ -506,34 +495,27 @@ FIR_SWIFT_NAME(DynamicLinkComponents)
 @property(nonatomic, nullable, readonly) NSURL *url;
 
 /**
- * @method componentsWithLink:domainURIPrefix:
+ * @method componentsWithLink:domain:
  * @abstract Generates a Dynamic Link URL components object with the minimum necessary parameters
  *     set to generate a fully-functional Dynamic Link.
  * @param link Deep link to be stored in created Dynamic link. This link also called "payload" of
  *     the Dynamic link.
- * @param domainURIPrefix Domain URI Prefix of your App. This value must be your assigned
- * domain from the Firebase console. (e.g. https://xyz.page.link)  The domain URI prefix must
- * start with a valid HTTPS scheme (https://).
- * @return Returns an instance of FIRDynamicLinkComponents if the parameters succeed validation,
- * else returns nil.
+ * @param domain Domain of your App. This value must be equal to your assigned domain from Firebase
+ *     Console.
  */
-+ (nullable instancetype)componentsWithLink:(NSURL *)link
-                            domainURIPrefix:(NSString *)domainURIPrefix
-    NS_SWIFT_UNAVAILABLE("Use init(link:domainURIPrefix:)");
++ (instancetype)componentsWithLink:(NSURL *)link domain:(NSString *)domain
+      NS_SWIFT_UNAVAILABLE("Use init(link:domain:)");
 
 /**
- * @method initWithLink:domainURIPrefix:
+ * @method initWithLink:domain:
  * @abstract Generates a Dynamic Link URL components object with the minimum necessary parameters
  *     set to generate a fully-functional Dynamic Link.
  * @param link Deep link to be stored in created Dynamic link. This link also called "payload" of
  *     the Dynamic link.
- * @param domainURIPrefix Domain URI Prefix of your App. This value must be your assigned
- * domain from the Firebase console. (e.g. https://xyz.page.link)  The domain URI prefix must
- * start with a valid HTTPS scheme (https://).
- * @return Returns an instance of FIRDynamicLinkComponents if the parameters succeed validation,
- * else returns nil.
+ * @param domain Domain of your App. This value must be equal to your assigned domain from Firebase
+ *     Console.
  */
-- (nullable instancetype)initWithLink:(NSURL *)link domainURIPrefix:(NSString *)domainURIPrefix;
+- (instancetype)initWithLink:(NSURL *)link domain:(NSString *)domain;
 
 /**
  * @method shortenURL:options:completion:
@@ -544,7 +526,7 @@ FIR_SWIFT_NAME(DynamicLinkComponents)
  *     guaranteed to be executed once and on the main thread.
  */
 + (void)shortenURL:(NSURL *)url
-           options:(FIRDynamicLinkComponentsOptions *_Nullable)options
+           options:(FIRDynamicLinkComponentsOptions * _Nullable)options
         completion:(FIRDynamicLinkShortenerCompletion)completion;
 
 /**
