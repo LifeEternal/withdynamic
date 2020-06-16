@@ -15,7 +15,7 @@ xmlns:android="http://schemas.android.com/apk/res/android"
     </engines>
 
     <js-module name="FirebaseDynamicLinks" src="www/FirebaseDynamicLinks.js">
-        <merges target="cordova.plugins.firebase.dynamiclinks" />
+        <merges target="FirebaseDL" />
     </js-module>
 
     <preference name="APP_DOMAIN" />
