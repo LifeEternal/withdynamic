@@ -104,7 +104,7 @@ xmlns:android="http://schemas.android.com/apk/res/android"
 
         <!--<framework src="src/ios/FirebaseDynamicLinks.framework" custom="true" embed="false" />-->
 
-        <framework src="FirebaseDynamicLinks" type="podspec" spec="~> 1.0.0" />
+        <framework src="FirebaseDynamicLinks" type="podspec" spec="~> 0.9.0" />
         
     </platform>
 
