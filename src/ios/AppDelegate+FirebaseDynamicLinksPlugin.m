@@ -16,6 +16,9 @@
     return NO;
 }
 
+- (BOOL)application:(UIApplication *)app openURL : (NSURL *)url options : (NSDictionary<NSString *, id> *)options;
+- (BOOL)application:(UIApplication *)app continueUserActivity : (NSUserActivity *)userActivity restorationHandler : (void(^)(NSArray *))restorationHandler;
+
 - (BOOL)application:(UIApplication *)app continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray *))restorationHandler {
     FirebaseDynamicLinksPlugin* dl = [self.viewController getCommandInstance:@"FirebaseDynamicLinks"];
 
