@@ -47,8 +47,7 @@
             if(dl == nil) {             
                 dl = [self.viewController getCommandInstance:@"FirebaseDynamicLinks"];
             }
-            dynamicLink = dynamicLink ? dynamicLink
-                : [[FIRDynamicLinks dynamicLinks] dynamicLinkFromUniversalLinkURL:userActivity.webpageURL];
+            dynamicLink = [[FIRDynamicLinks dynamicLinks] dynamicLinkFromUniversalLinkURL:userActivity.webpageURL];
             
             if (dynamicLink) {
                 [dl postDynamicLink:dynamicLink];
