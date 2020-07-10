@@ -41,16 +41,14 @@
           restorationHandler:(void (^)(NSArray *))restorationHandler {
     __block FirebaseDynamicLinksPlugin* dl = [self.viewController getCommandInstance:@"FirebaseDynamicLinks"];
 
-    BOOL handled = [[FIRDynamicLinks dynamicLinks] handleUniversalLink:userActivity.webpageURL 
-	completion:^(FIRDynamicLink * _Nullable dynamicLink, NSError * _Nullable error) {
+    BOOL handled = [[FIRDynamicLinks dynamicLinks] handleUniversalLink:userActivity.webpageURL
             // Try this method as some dynamic links are not recognize by handleUniversalLink
             // ISSUE: https://github.com/firebase/firebase-ios-sdk/issues/743
             if(dl == nil) {             
                 dl = [self.viewController getCommandInstance:@"FirebaseDynamicLinks"];
             }
             dynamicLink = dynamicLink ? dynamicLink
-                : [[FIRDynamicLinks dynamicLinks]
-                   dynamicLinkFromUniversalLinkURL:userActivity.webpageURL];
+                : [[FIRDynamicLinks dynamicLinks] dynamicLinkFromUniversalLinkURL:userActivity.webpageURL];
             
             if (dynamicLink) {
                 [dl postDynamicLink:dynamicLink];
