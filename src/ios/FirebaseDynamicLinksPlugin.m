@@ -5,6 +5,10 @@
 - (void)pluginInitialize {
     NSLog(@"Starting Firebase DynamicLinks plugin");
 
+    if (![FIRApp defaultApp]) {
+        [FIRApp configure];
+    }
+
     self.domainUriPrefix = [self.commandDelegate.settings objectForKey:[@"DYNAMIC_LINK_URIPREFIX" lowercaseString]];
 }
 
@@ -17,25 +21,6 @@
         [self.commandDelegate sendPluginResult:pluginResult callbackId:self.dynamicLinkCallbackId];
 
         self.lastDynamicLinkData = nil;
-    }
-}
-
-- (void)postDynamicLink:(FIRDynamicLink*) dynamicLink {
-    NSMutableDictionary *data = [NSMutableDictionary dictionary];
-    NSString* absoluteUrl = dynamicLink.url.absoluteString;
-    NSString* minimumAppVersion = dynamicLink.minimumAppVersion;
-    BOOL weakConfidence = (dynamicLink.matchType == FIRDLMatchTypeWeak);
-
-    [data setObject:(absoluteUrl ? absoluteUrl : @"") forKey:@"deepLink"];
-    [data setObject:(minimumAppVersion ? minimumAppVersion : @"") forKey:@"minimumAppVersion"];
-    [data setObject:(weakConfidence ? @"Weak" : @"Strong") forKey:@"matchType"];
-
-    if (self.dynamicLinkCallbackId) {
-        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:data];
-        [pluginResult setKeepCallbackAsBool:YES];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:self.dynamicLinkCallbackId];
-    } else {
-        self.lastDynamicLinkData = data;
     }
 }
 
@@ -75,7 +60,7 @@
     }
 
     FIRDynamicLinkComponents *linkBuilder = [[FIRDynamicLinkComponents alloc]
-                                             initWithLink:link domain:domainUriPrefix];
+                                             initWithLink:link domainURIPrefix:domainUriPrefix];
     NSDictionary* androidInfo = params[@"androidInfo"];
     if (androidInfo) {
         linkBuilder.androidParameters = [self getAndroidParameters:androidInfo];
@@ -173,6 +158,25 @@
         result.imageURL = [[NSURL alloc] initWithString:socialImageLink];
     }
     return result;
+}
+
+- (void)postDynamicLink:(FIRDynamicLink*) dynamicLink {
+    NSMutableDictionary *data = [NSMutableDictionary dictionary];
+    NSString* absoluteUrl = dynamicLink.url.absoluteString;
+    NSString* minimumAppVersion = dynamicLink.minimumAppVersion;
+    BOOL weakConfidence = (dynamicLink.matchType == FIRDLMatchTypeWeak);
+
+    [data setObject:(absoluteUrl ? absoluteUrl : @"") forKey:@"deepLink"];
+    [data setObject:(minimumAppVersion ? minimumAppVersion : @"") forKey:@"minimumAppVersion"];
+    [data setObject:(weakConfidence ? @"Weak" : @"Strong") forKey:@"matchType"];
+
+    if (self.dynamicLinkCallbackId) {
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:data];
+        [pluginResult setKeepCallbackAsBool:YES];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:self.dynamicLinkCallbackId];
+    } else {
+        self.lastDynamicLinkData = data;
+    }
 }
 
 @end
