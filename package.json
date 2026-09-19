@@ -35,6 +35,6 @@
   },
   "homepage": "https://github.com/chemerisuk/cordova-plugin-firebase-dynamiclinks#readme",
   "dependencies": {
-    "adm-zip": "^0.4.13"
+    "adm-zip": "^0.6.1"
   }
 }
